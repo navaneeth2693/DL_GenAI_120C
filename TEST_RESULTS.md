@@ -148,3 +148,21 @@ This limits narrative creativity in exchange for consistent outcomes.
 
 These tests verify the listed cases, not every possible input or failure.
 
+
+
+\## Final Version 2 walkthrough
+
+
+
+Completed the valid escape sequence with Gemini narration connected.
+
+The success banner appeared, and the final turn displayed
+
+"Gemini-selected narration".
+
+
+
+Earlier turns' narration sources were not recorded individually,
+
+so this does not establish that every turn used Gemini.
+
