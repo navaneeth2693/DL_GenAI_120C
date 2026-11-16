@@ -2,6 +2,7 @@ import streamlit as st
 
 from game_logic import new_game
 from action_handler import handle_action
+from narrator import narrate
 
 st.set_page_config(
     page_title="AI Escape Room — Version 2",
@@ -10,7 +11,7 @@ st.set_page_config(
 
 st.title("AI Escape Room — Version 2")
 st.caption("Python-controlled game state and action validation")
-st.caption("Local testing mode — Gemini narration is not connected yet.")
+st.caption("Python validates actions; Gemini selects approved narration.")
 
 # Keep game state separate from the displayed conversation.
 if "v2_state" not in st.session_state:
@@ -22,6 +23,7 @@ if "v2_messages" not in st.session_state:
 if st.button("Restart game"):
     st.session_state.v2_state = new_game()
     st.session_state.v2_messages = []
+    st.session_state.pop("v2_narration_source", None)
     st.rerun()
 
 state = st.session_state.v2_state
@@ -76,17 +78,24 @@ player_action = st.chat_input(
 )
 
 if player_action:
-    # Only Python rules can change the game state.
+    # Python determines the outcome and updates state.
     result = handle_action(state, player_action)
+
+    # Gemini can select narration, but cannot change the outcome.
+    with st.spinner("Preparing the Game Master's response..."):
+        reply, source = narrate(result["message"])
 
     st.session_state.v2_messages.extend(
         [
             {"role": "user", "content": player_action},
-            {"role": "assistant", "content": result["message"]},
+            {"role": "assistant", "content": reply},
         ]
     )
 
+    st.session_state.v2_narration_source = source
     st.rerun()
 
+if "v2_narration_source" in st.session_state:
+    st.caption(st.session_state.v2_narration_source)
 with st.expander("Inspect Python game state"):
     st.json(state)
